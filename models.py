@@ -1,4 +1,5 @@
 from enum import Enum
+from dataclasses import dataclass
 
 class MoveClassification(Enum):
     BEST = "Best"
@@ -14,4 +15,3 @@ class MoveAnalysis:
     eval_after: float
     delta: float
     classification: MoveClassification
-    

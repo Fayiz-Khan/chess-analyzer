@@ -3,7 +3,7 @@ import chess.pgn
 import chess.engine
 
 from analyzer import classify_move, score_to_cp, format_score
-from models import MoveAnalysis
+from models import MoveAnalysis, MoveClassification
 
 def call_engine(engine, board):
     return engine.analyse(board, chess.engine.Limit(depth=10))
@@ -32,10 +32,29 @@ for move in game.mainline_moves():
         print(f"{move_number}. {standard_algebraic_move}")
     else:
         print(f"{move_number}... {standard_algebraic_move}")
+
+    best_line = info_before.get("pv")
+    best_move = best_line[0] if best_line else None
+    best_move_san = board.san(best_move) if best_move else "None"
     
     board.push(move)
 
     if board.is_checkmate():
+        classification = MoveClassification.BEST
+
+        eval_after = -100000 if board.turn == chess.WHITE else 100000
+        
+        analysis.append(
+            MoveAnalysis(
+                move_san=standard_algebraic_move,
+                eval_before=eval_before,
+                eval_after=-10000,
+                delta=999,
+                classification=classification
+            )
+        )
+
+        print(classification.value)
         print("Checkmate")
         print("--------------------")
         break
@@ -47,23 +66,20 @@ for move in game.mainline_moves():
 
     delta = eval_before - eval_after
 
-    best_line = info_after.get("pv")
-    best_move = best_line[0] if best_line else None
-
     if best_move:    
-        print(f"Best move: {board.san(best_move)}")
+        print(f"Best move: {best_move_san}")
 
     classification = classify_move(delta, move, best_move)
 
     analysis.append(
-    MoveAnalysis(
-        move=standard_algebraic_move,
-        eval_before=eval_before,
-        eval_after=eval_after,
-        delta=delta,
-        classification=classification
+        MoveAnalysis(
+            move_san=standard_algebraic_move,
+            eval_before=eval_before,
+            eval_after=eval_after,
+            delta=delta,
+            classification=classification
+        )
     )
-)
 
     print(f"Eval: {format_score(info_before['score'])} → {format_score(info_after['score'])}")
     print(f"Δ {delta:.2f}")
