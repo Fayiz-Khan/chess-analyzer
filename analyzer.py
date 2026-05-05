@@ -59,7 +59,7 @@ def analyze_game(pgn_path):
             move_number = board.fullmove_number
             move_colour = MoveColour.WHITE if board.turn == chess.WHITE else MoveColour.BLACK
 
-            board_state_before = board.fen()  # storing the fen for flexibility when working with APIs compared to storing  board string which we can output as anyways
+            board_state_before = board.fen()  # storing the fen for flexibility when working with APIs compared to storing board string which we can output as anyways
             board.push(move)
             board_state_after = board.fen()
 
