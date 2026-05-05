@@ -19,7 +19,8 @@ class MoveAnalysis:
     move_colour: MoveColour
     move_san: str
     best_move_san: str
-    board_state: str 
+    board_state_before: str
+    board_state_after: str
     eval_before: float
     eval_after: float
     delta: float
@@ -32,7 +33,8 @@ class MoveAnalysis:
             "move_colour": self.move_colour.value,
             "move_san": self.move_san,
             "best_move_san": self.best_move_san,
-            "board_state": self.board_state,
+            "board_state_before": self.board_state_before,
+            "board_state_after": self.board_state_after,
             "eval_before": self.eval_before,
             "eval_after": self.eval_after,
             "delta": self.delta,
