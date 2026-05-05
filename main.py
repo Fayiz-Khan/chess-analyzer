@@ -15,7 +15,7 @@ with open("analysis.json", "w") as f:
     json.dump(output, f, indent=4, cls=MoveEncoder)
 
 for move in analysis:
-    board = chess.Board(move.board_state_after)
+    board = chess.Board(move.fen_state_after)
 
     if move.move_colour == MoveColour.WHITE:
         print(f"{move.move_number}. {move.move_san}")
