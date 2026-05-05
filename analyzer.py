@@ -1,7 +1,6 @@
 import chess
 import chess.pgn
 
-from models import MoveClassification
 from engine import call_engine, start_engine
 from models import MoveAnalysis, MoveClassification, MoveColour
 
@@ -42,6 +41,8 @@ def analyze_game(pgn_path):
     with open(pgn_path) as pgn:
         game = chess.pgn.read_game(pgn)
 
+    metadata = dict(game.headers)
+
     board = game.board()
     engine = start_engine()
 
@@ -56,7 +57,7 @@ def analyze_game(pgn_path):
             best_move_san = board.san(best_move) if best_move else "None"
 
             move_number = board.fullmove_number
-            move_colour = MoveColour.WHITE if board.turn == chess.WHITE else move_colour.BLACK
+            move_colour = MoveColour.WHITE if board.turn == chess.WHITE else MoveColour.BLACK
 
             board.push(move)
             board_fen = board.fen() # storing the fen for flexibility when working with APIs compared to storing  board string which we can output as anyways
@@ -103,4 +104,4 @@ def analyze_game(pgn_path):
     finally:
         engine.quit()
 
-    return analysis
+    return  metadata, analysis

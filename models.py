@@ -1,5 +1,6 @@
 from enum import Enum
 from dataclasses import dataclass
+import json
 
 class MoveClassification(Enum):
     BEST = "Best"
@@ -24,4 +25,23 @@ class MoveAnalysis:
     delta: float
     classification: MoveClassification
     is_checkmate: bool = False
-    
+
+    def to_dict(self):
+        return {
+            "move_number": self.move_number,
+            "move_colour": self.move_colour.value,
+            "move_san": self.move_san,
+            "best_move_san": self.best_move_san,
+            "board_state": self.board_state,
+            "eval_before": self.eval_before,
+            "eval_after": self.eval_after,
+            "delta": self.delta,
+            "classification": self.classification.value,
+            "is_checkmate": self.is_checkmate, 
+        }
+
+class MoveEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, MoveAnalysis):
+            return obj.to_dict()
+        return super().default(obj)
