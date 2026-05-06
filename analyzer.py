@@ -86,7 +86,9 @@ def analyze_game(pgn_path):
 
             info_after = call_engine(engine, board)
             eval_after = score_to_cp(info_after["score"])
-            delta = eval_before - eval_after
+
+            delta = eval_before - eval_after if move_colour == MoveColour.WHITE else eval_after - eval_before 
+
             classification = classify_move(delta, move, best_move)
 
             analysis.append(

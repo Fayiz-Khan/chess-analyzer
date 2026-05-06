@@ -1,18 +1,13 @@
 import chess
-import json
-from models import MoveEncoder
 from analyzer import analyze_game
 from models import MoveColour
+from export import export_analysis
 
-metadata, analysis = analyze_game("game.pgn")
+DEFAULT_PGN_PATH = "game.pgn"
 
-output = {
-    "game": metadata,
-    "moves": analysis
-}
+metadata, analysis = analyze_game(DEFAULT_PGN_PATH)
 
-with open("analysis.json", "w") as f:
-    json.dump(output, f, indent=4, cls=MoveEncoder)
+export_analysis(metadata, analysis)
 
 for move in analysis:
     board = chess.Board(move.fen_state_after)
