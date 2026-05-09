@@ -1,0 +1,55 @@
+from models import MoveClassification, MoveColour, PlayerSummary, AnalysisSummary
+
+def build_player_summary(analysis):
+    best_moves = 0
+    good_moves = 0
+    inaccuracies = 0
+    mistakes = 0
+    blunders = 0
+
+    total_eval_loss = 0
+    eval_loss_count = 0
+
+    for move in analysis:
+        if move.classification == MoveClassification.BEST:
+            best_moves += 1
+        elif move.classification == MoveClassification.GOOD:
+            good_moves += 1
+        elif move.classification == MoveClassification.INACCURACY:
+            inaccuracies += 1
+        elif move.classification == MoveClassification.MISTAKE:
+            mistakes += 1
+        elif move.classification == MoveClassification.BLUNDER:
+            blunders += 1
+
+        if not move.is_checkmate and abs(move.delta) < 1000: # This is to exclude fake mate evals like +/-10000 so they do not destroy average eval loss since we are temporarily treating checkmate evaluations as that in analyzer.py
+            total_eval_loss += max(0, move.delta)
+            eval_loss_count += 1
+
+    average_eval_loss = total_eval_loss / eval_loss_count if eval_loss_count else 0
+
+    return PlayerSummary(
+        total_moves=len(analysis),
+        best_moves=best_moves,
+        good_moves=good_moves,
+        inaccuracies=inaccuracies,
+        mistakes=mistakes,
+        blunders=blunders,
+        average_eval_loss=round(average_eval_loss, 2),
+    )
+
+def build_summary(analysis):
+    white_moves = [
+        move for move in analysis
+        if move.move_colour == MoveColour.WHITE
+    ]
+
+    black_moves = [
+        move for move in analysis
+        if move.move_colour == MoveColour.BLACK
+    ]
+
+    return AnalysisSummary(
+        white=build_player_summary(white_moves),
+        black=build_player_summary(black_moves),
+    )
