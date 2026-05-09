@@ -2,12 +2,15 @@ import chess
 from analyzer import analyze_game
 from models import MoveColour
 from export import export_analysis
+from summarizer import build_summary
 
 DEFAULT_PGN_PATH = "game.pgn"
 
 metadata, analysis = analyze_game(DEFAULT_PGN_PATH)
 
-export_analysis(metadata, analysis)
+summary = build_summary(analysis)
+
+export_analysis(metadata, analysis, summary)
 
 for move in analysis:
     board = chess.Board(move.fen_state_after)
