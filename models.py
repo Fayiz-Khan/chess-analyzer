@@ -35,15 +35,47 @@ class MoveAnalysis:
             "best_move_san": self.best_move_san,
             "fen_state_before": self.fen_state_before,
             "fen_state_after": self.fen_state_after,
-            "eval_before": self.eval_before,
-            "eval_after": self.eval_after,
-            "delta": self.delta,
+            "eval_before": round(self.eval_before, 2),
+            "eval_after": round(self.eval_after, 2),
+            "delta": round(self.delta, 2),
             "classification": self.classification.value,
             "is_checkmate": self.is_checkmate, 
         }
+    
+@dataclass
+class PlayerSummary:
+    total_moves: int
+    best_moves: int
+    good_moves: int
+    inaccuracies: int
+    mistakes: int
+    blunders: int
+    average_eval_loss: float
 
-class MoveEncoder(json.JSONEncoder):
+    def to_dict(self):
+        return {
+            "total_moves": self.total_moves,
+            "best_moves": self.best_moves,
+            "good_moves": self.good_moves,
+            "inaccuracies": self.inaccuracies,
+            "mistakes": self.mistakes,
+            "blunders": self.blunders,
+            "average_eval_loss": self.average_eval_loss,
+        }
+
+@dataclass
+class AnalysisSummary:
+    white: PlayerSummary
+    black: PlayerSummary
+
+    def to_dict(self):
+        return {
+            "white": self.white.to_dict(),
+            "black": self.black.to_dict(),
+        }
+
+class AnalysisEncoder(json.JSONEncoder):
     def default(self, obj):
-        if isinstance(obj, MoveAnalysis):
+        if isinstance(obj, (MoveAnalysis, AnalysisSummary)):
             return obj.to_dict()
         return super().default(obj)
