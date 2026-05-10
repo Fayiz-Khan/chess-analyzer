@@ -22,7 +22,7 @@ def build_player_summary(analysis: list[MoveAnalysis]) -> PlayerSummary:
         elif move.classification == MoveClassification.BLUNDER:
             blunders += 1
 
-        if not move.is_checkmate and abs(move.delta) < 1000: # This is to exclude fake mate evals like +/-10000 so they do not destroy average eval loss since we are temporarily treating checkmate evaluations as that in analyzer.py
+        if not move.is_checkmate and abs(move.delta) < 999: # This is to exclude fake mate evals like +/-10000 so they do not destroy average eval loss since we are temporarily treating checkmate evaluations as that in analyzer.py
             total_eval_loss += max(0, move.delta)
             eval_loss_count += 1
 
