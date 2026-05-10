@@ -28,18 +28,6 @@ def score_to_cp(score: chess.engine.PovScore) -> float:
         return 10000 if pov.mate() > 0 else -10000
     return pov.score() / 100.0
 
-def format_score(score: chess.engine.PovScore) -> str: 
-    pov = score.pov(chess.WHITE)
-
-    if pov.is_mate():
-        mate_moves = pov.mate()
-        if mate_moves > 0:
-            return f"Mate in {mate_moves}"
-        return f"-Mate in {abs(mate_moves)}"
-
-    return f"{pov.score() / 100.0:.2f}"
-
-
 def analyze_game(pgn_path: str) -> tuple[dict[str, str], list[MoveAnalysis]]:
     analysis = []
 
