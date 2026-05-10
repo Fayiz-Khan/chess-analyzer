@@ -1,7 +1,12 @@
-from models import AnalysisEncoder
 import json
+from models import AnalysisEncoder, MoveAnalysis, AnalysisSummary
 
-def export_analysis(metadata, analysis, summary, output_path = "analysis.json"):
+def export_analysis(
+    metadata: dict[str, str],
+    analysis: list[MoveAnalysis],
+    summary: AnalysisSummary,
+    output_path: str = "analysis.json",
+) -> None:
     output = {
         "game": metadata,
         "moves": analysis,
