@@ -1,6 +1,6 @@
+import json
 from enum import Enum
 from dataclasses import dataclass
-import json
 
 class MoveClassification(Enum):
     BEST = "Best"
@@ -27,7 +27,7 @@ class MoveAnalysis:
     classification: MoveClassification
     is_checkmate: bool = False
 
-    def to_dict(self):
+    def to_dict(self) -> dict[str, object]:
         return {
             "move_number": self.move_number,
             "move_colour": self.move_colour.value,
@@ -39,7 +39,7 @@ class MoveAnalysis:
             "eval_after": round(self.eval_after, 2),
             "delta": round(self.delta, 2),
             "classification": self.classification.value,
-            "is_checkmate": self.is_checkmate, 
+            "is_checkmate": self.is_checkmate,
         }
     
 @dataclass
@@ -52,7 +52,7 @@ class PlayerSummary:
     blunders: int
     average_eval_loss: float
 
-    def to_dict(self):
+    def to_dict(self) -> dict[str, object]:
         return {
             "total_moves": self.total_moves,
             "best_moves": self.best_moves,
@@ -68,14 +68,14 @@ class AnalysisSummary:
     white: PlayerSummary
     black: PlayerSummary
 
-    def to_dict(self):
+    def to_dict(self) -> dict[str, object]:
         return {
             "white": self.white.to_dict(),
             "black": self.black.to_dict(),
         }
 
 class AnalysisEncoder(json.JSONEncoder):
-    def default(self, obj):
+    def default(self, obj: object) -> object:
         if isinstance(obj, (MoveAnalysis, AnalysisSummary)):
             return obj.to_dict()
         return super().default(obj)
