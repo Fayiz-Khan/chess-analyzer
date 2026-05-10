@@ -1,6 +1,6 @@
-from models import MoveClassification, MoveColour, PlayerSummary, AnalysisSummary
+from models import MoveClassification, MoveColour, PlayerSummary, AnalysisSummary, MoveAnalysis
 
-def build_player_summary(analysis):
+def build_player_summary(analysis: list[MoveAnalysis]) -> PlayerSummary:
     best_moves = 0
     good_moves = 0
     inaccuracies = 0
@@ -38,7 +38,7 @@ def build_player_summary(analysis):
         average_eval_loss=round(average_eval_loss, 2),
     )
 
-def build_summary(analysis):
+def build_summary(analysis: list[MoveAnalysis]) -> AnalysisSummary:
     white_moves = [
         move for move in analysis
         if move.move_colour == MoveColour.WHITE

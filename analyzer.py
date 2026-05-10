@@ -5,7 +5,12 @@ from engine import call_engine, start_engine
 from models import MoveAnalysis, MoveClassification, MoveColour
 
 
-def classify_move(eval_drop, player_move, best_move):
+def classify_move(
+    eval_drop: float,
+    player_move: chess.Move,
+    best_move: chess.Move | None,
+) -> MoveClassification:
+    
     if best_move and player_move == best_move:
         return MoveClassification.BEST
     if eval_drop >= 2.0:
@@ -17,13 +22,13 @@ def classify_move(eval_drop, player_move, best_move):
     else:
         return MoveClassification.GOOD
     
-def score_to_cp(score):
+def score_to_cp(score: chess.engine.PovScore) -> float:
     pov = score.pov(chess.WHITE) # normalize scores so + can be in favour of white and - be in favour of black as it normally is
     if pov.is_mate():
         return 10000 if pov.mate() > 0 else -10000
     return pov.score() / 100.0
 
-def format_score(score): 
+def format_score(score: chess.engine.PovScore) -> str: 
     pov = score.pov(chess.WHITE)
 
     if pov.is_mate():
@@ -35,7 +40,7 @@ def format_score(score):
     return f"{pov.score() / 100.0:.2f}"
 
 
-def analyze_game(pgn_path):
+def analyze_game(pgn_path: str) -> tuple[dict[str, str], list[MoveAnalysis]]:
     analysis = []
 
     with open(pgn_path) as pgn:
