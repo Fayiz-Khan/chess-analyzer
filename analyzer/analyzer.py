@@ -1,8 +1,8 @@
 import chess
 import chess.pgn
 
-from engine import call_engine, start_engine
-from models import MoveAnalysis, MoveClassification, MoveColour, Evaluation
+from analyzer.engine import call_engine, start_engine
+from models.models import MoveAnalysis, MoveClassification, MoveColour, Evaluation
 
 
 def classify_move(

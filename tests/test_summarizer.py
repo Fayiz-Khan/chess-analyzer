@@ -1,5 +1,5 @@
-from models import MoveAnalysis, MoveClassification, MoveColour, AnalysisSummary
-from summarizer import build_player_summary, build_summary
+from models.models import MoveAnalysis, MoveClassification, MoveColour, AnalysisSummary
+from analyzer.summarizer import build_player_summary, build_summary
 
 def make_move(
     classification: MoveClassification,
