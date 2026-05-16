@@ -1,8 +1,8 @@
 import chess
-from analyzer import analyze_game
-from models import MoveColour, Evaluation
-from export import export_analysis
-from summarizer import build_summary
+from analyzer.analyzer import analyze_game
+from models.models import MoveColour, Evaluation
+from analyzer.export import export_analysis
+from analyzer.summarizer import build_summary
 
 def format_evaluation(evaluation: Evaluation) -> str:
     if evaluation.mate_in is not None:

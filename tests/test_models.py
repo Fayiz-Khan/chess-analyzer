@@ -1,4 +1,4 @@
-from models import (
+from models.models import (
     MoveAnalysis,
     MoveClassification,
     MoveColour,
