@@ -1,8 +1,14 @@
 import chess
 from analyzer import analyze_game
-from models import MoveColour
+from models import MoveColour, Evaluation
 from export import export_analysis
 from summarizer import build_summary
+
+def format_evaluation(evaluation: Evaluation) -> str:
+    if evaluation.mate_in is not None:
+        return f"M{evaluation.mate_in}"
+
+    return f"{evaluation.centipawns:.2f}"
 
 DEFAULT_PGN_PATH = "game.pgn"
 
@@ -25,8 +31,16 @@ for move in analysis:
     if move.best_move_san != "None":
         print(f"Best move: {move.best_move_san}")
 
-    print(f"Eval: {move.eval_before:.2f} → {move.eval_after:.2f}")
-    print(f"Δ {move.delta:.2f}")
+    print(
+    f"Eval: "
+    f"{format_evaluation(move.eval_before)} "
+    f"→ "
+    f"{format_evaluation(move.eval_after)}"
+)
+    if move.delta is not None:
+        print(f"Δ {move.delta:.2f}")
+    else:
+        print("Δ N/A")
     print(move.classification.value)
 
     if move.is_checkmate:
