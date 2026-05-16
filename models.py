@@ -14,6 +14,17 @@ class MoveColour(Enum):
     BLACK = "Black"
 
 @dataclass
+class Evaluation:
+    centipawns: float | None
+    mate_in: int | None
+
+    def to_dict(self) -> dict[str, object]:
+        return {
+            "centipawns": self.centipawns,
+            "mate_in": self.mate_in,
+        }
+
+@dataclass
 class MoveAnalysis:
     move_number: int
     move_colour: MoveColour
@@ -21,9 +32,9 @@ class MoveAnalysis:
     best_move_san: str
     fen_state_before: str
     fen_state_after: str
-    eval_before: float
-    eval_after: float
-    delta: float
+    eval_before: Evaluation
+    eval_after: Evaluation
+    delta: float | None
     classification: MoveClassification
     is_checkmate: bool = False
 
@@ -35,9 +46,9 @@ class MoveAnalysis:
             "best_move_san": self.best_move_san,
             "fen_state_before": self.fen_state_before,
             "fen_state_after": self.fen_state_after,
-            "eval_before": round(self.eval_before, 2),
-            "eval_after": round(self.eval_after, 2),
-            "delta": round(self.delta, 2),
+            "eval_before": self.eval_before.to_dict(),
+            "eval_after": self.eval_after.to_dict(),
+            "delta": round(self.delta, 2) if self.delta is not None else None,
             "classification": self.classification.value,
             "is_checkmate": self.is_checkmate,
         }
@@ -76,6 +87,6 @@ class AnalysisSummary:
 
 class AnalysisEncoder(json.JSONEncoder):
     def default(self, obj: object) -> object:
-        if isinstance(obj, (MoveAnalysis, AnalysisSummary)):
+        if isinstance(obj, (MoveAnalysis, AnalysisSummary, PlayerSummary, Evaluation)):
             return obj.to_dict()
         return super().default(obj)

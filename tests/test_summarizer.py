@@ -68,7 +68,7 @@ def test_build_player_summary_average_eval_loss_uses_positive_deltas_only():
 def test_build_player_summary_excludes_checkmate_from_average_loss():
     moves = [
         make_move(MoveClassification.GOOD, 1.0),
-        make_move(MoveClassification.BEST, 999, is_checkmate=True),
+        make_move(MoveClassification.BEST, None, is_checkmate=True),
     ]
 
     summary = build_player_summary(moves)
@@ -80,7 +80,7 @@ def test_build_player_summary_excludes_checkmate_from_average_loss():
 def test_build_player_summary_excludes_large_sentinel_deltas():
     moves = [
         make_move(MoveClassification.GOOD, 1.0),
-        make_move(MoveClassification.BLUNDER, 999),
+        make_move(MoveClassification.BLUNDER, None),
     ]
 
     summary = build_player_summary(moves)
