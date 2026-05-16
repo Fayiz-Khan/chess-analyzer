@@ -1,6 +1,6 @@
 import json
-from export import export_analysis
-from models import MoveAnalysis, MoveClassification, MoveColour, PlayerSummary, AnalysisSummary, Evaluation
+from analyzer.export import export_analysis
+from models.models import MoveAnalysis, MoveClassification, MoveColour, PlayerSummary, AnalysisSummary, Evaluation
 
 def test_export_analysis_writes_expected_json_shape(tmp_path):
     output_path = tmp_path / "analysis.json"

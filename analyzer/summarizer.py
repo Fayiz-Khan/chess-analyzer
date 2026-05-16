@@ -1,4 +1,4 @@
-from models import MoveClassification, MoveColour, PlayerSummary, AnalysisSummary, MoveAnalysis
+from models.models import MoveClassification, MoveColour, PlayerSummary, AnalysisSummary, MoveAnalysis
 
 def build_player_summary(analysis: list[MoveAnalysis]) -> PlayerSummary:
     best_moves = 0
