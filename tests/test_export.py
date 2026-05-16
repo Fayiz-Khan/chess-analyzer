@@ -1,6 +1,6 @@
 import json
 from export import export_analysis
-from models import MoveAnalysis, MoveClassification, MoveColour, PlayerSummary, AnalysisSummary
+from models import MoveAnalysis, MoveClassification, MoveColour, PlayerSummary, AnalysisSummary, Evaluation
 
 def test_export_analysis_writes_expected_json_shape(tmp_path):
     output_path = tmp_path / "analysis.json"
@@ -20,8 +20,8 @@ def test_export_analysis_writes_expected_json_shape(tmp_path):
             best_move_san="e4",
             fen_state_before="before",
             fen_state_after="after",
-            eval_before=0.0,
-            eval_after=0.3,
+            eval_before=Evaluation(centipawns=0.0, mate_in=None),
+            eval_after=Evaluation(centipawns=0.3, mate_in=None),
             delta=-0.3,
             classification=MoveClassification.BEST,
         )
@@ -40,6 +40,16 @@ def test_export_analysis_writes_expected_json_shape(tmp_path):
     assert data["game"] == metadata
     assert "moves" in data
     assert "summary" in data
+
+    assert data["moves"][0]["eval_before"] == {
+    "centipawns": 0.0,
+    "mate_in": None,
+}
+    assert data["moves"][0]["eval_after"] == {
+        "centipawns": 0.3,
+        "mate_in": None,
+    }
+
     assert data["moves"][0]["move_colour"] == "White"
     assert data["moves"][0]["classification"] == "Best"
     assert data["summary"]["white"]["best_moves"] == 1
