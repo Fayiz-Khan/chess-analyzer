@@ -1,7 +1,7 @@
 import chess
 
-from analyzer import classify_move
-from models import MoveClassification
+from analyzer.analyzer import classify_move
+from models.models import MoveClassification
 
 def test_classify_move_returns_best_when_player_move_matches_best_move():
     move = chess.Move.from_uci("e2e4")

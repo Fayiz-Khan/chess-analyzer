@@ -1,5 +1,5 @@
 import json
-from models import AnalysisEncoder, MoveAnalysis, AnalysisSummary
+from models.models import AnalysisEncoder, MoveAnalysis, AnalysisSummary
 
 def export_analysis(
     metadata: dict[str, str],
