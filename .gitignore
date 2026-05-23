@@ -3,3 +3,4 @@ __pycache__/
 .env
 *.json
 .DS_Store
+temp.pgn
