@@ -9,12 +9,13 @@ app = FastAPI()
 class AnalyzeRequest(BaseModel):
     pgn: str
 
+## to test: uvicorn api.app:app --reload and then http://127.0.0.1:8000/docs
 @app.get("/")
 def health_check():
     return {"status": "ok"}
 
 @app.post("/analyze")
-def analyze(request: AnalyzeRequest): 
+def analyze(request: AnalyzeRequest) -> dict: 
     with open("temp.pgn", "w") as f:
         f.write(request.pgn)
 
