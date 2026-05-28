@@ -7,8 +7,7 @@ def test_health_check_returns_ok():
     response = client.get("/")
 
     assert response.status_code == 200
-    assert response.json() == {"status": "ok"
-}
+    assert response.json() == {"status": "ok"}
 
 def test_analyze_returns_analysis():
     pgn_data = {"pgn": "[Event \"Test\"]\n[White \"Noob\"]\n[Black \"Fayiz\"]\n[Result \"0-1\"]\n\n1. f4 e5 2. g4 Qh4# 0-1"}
