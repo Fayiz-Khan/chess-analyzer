@@ -84,7 +84,51 @@ class AnalysisSummary:
             "white": self.white.to_dict(),
             "black": self.black.to_dict(),
         }
+    
+@dataclass
+class MasterMove:
+    san: str
+    average_rating: int
+    white_wins: int
+    black_wins: int
+    draws: int
 
+    @property
+    def total_games(self):
+        return self.white_wins + self.black_wins + self.draws
+    
+    @classmethod
+    def from_json(cls, data: dict) -> "MasterMove":
+        return cls(
+            san = data["san"],
+            average_rating = data["averageRating"],
+            white_wins = data["white"],
+            black_wins = data["black"],
+            draws = data["draws"],
+        )
+
+@dataclass
+class MasterPositionStats: 
+    white_wins: int
+    black_wins: int
+    draws: int
+    master_moves: list[MasterMove]
+
+    @property
+    def total_games(self):
+        return self.white_wins + self.black_wins + self.draws
+    
+    @classmethod
+    def from_json(cls, data: dict) -> "MasterPositionStats":
+        return cls(
+            white_wins = data["white"],
+            black_wins = data["black"],
+            draws = data["draws"],
+            master_moves =[
+                MasterMove.from_json(move) for move in data["moves"]
+            ],
+        )
+        
 class AnalysisEncoder(json.JSONEncoder):
     def default(self, obj: object) -> object:
         if isinstance(obj, (MoveAnalysis, AnalysisSummary, PlayerSummary, Evaluation)):
