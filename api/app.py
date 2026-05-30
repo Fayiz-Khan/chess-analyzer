@@ -3,6 +3,7 @@ from pydantic import BaseModel
 
 from analyzer.analyzer import analyze_game
 from analyzer.summarizer import build_summary
+from models.models import MoveAnalysis, AnalysisSummary
 
 app = FastAPI()
 
@@ -15,7 +16,7 @@ def health_check():
     return {"status": "ok"}
 
 @app.post("/analyze")
-def analyze(request: AnalyzeRequest) -> dict: 
+def analyze(request: AnalyzeRequest) -> dict[str, dict[str, str] | list[MoveAnalysis] | AnalysisSummary]: 
     with open("temp.pgn", "w") as f:
         f.write(request.pgn)
 

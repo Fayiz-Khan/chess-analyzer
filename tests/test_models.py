@@ -4,7 +4,9 @@ from models.models import (
     MoveColour,
     PlayerSummary,
     AnalysisSummary,
-    Evaluation
+    Evaluation, 
+    MasterPositionStats, 
+    MasterMove,
 )
 
 def test_move_analysis_to_dict_serializes_enums_and_rounds_values():
@@ -105,3 +107,54 @@ def test_move_analysis_to_dict_handles_none_delta():
 
     assert result["delta"] is None
     assert result["is_checkmate"] is True
+
+def test_master_move_total_games():
+    move = MasterMove(
+        san = "c5",
+        average_rating = 2375,
+        white_wins = 235,
+        black_wins = 253,
+        draws = 237,
+    )
+
+    assert(move.total_games == 725)
+
+def test_master_position_stats_from_json():
+    data = {
+        "white": 1872,
+        "black": 2288,
+        "draws": 2537,
+        "moves": [
+            {
+                "san": "c5",
+                "averageRating": 2375,
+                "white": 235,
+                "black": 253,
+                "draws": 237,
+            }
+        ],
+    }
+
+    stats = MasterPositionStats.from_json(data)
+
+    assert stats.white_wins == 1872
+    assert stats.black_wins == 2288
+    assert stats.draws == 2537
+
+    assert len(stats.master_moves) == 1
+    assert stats.master_moves[0].san == "c5"
+    assert stats.master_moves[0].average_rating == 2375
+    assert stats.master_moves[0].white_wins == 235
+    assert stats.master_moves[0].black_wins == 253
+    assert stats.master_moves[0].draws == 237
+    assert stats.master_moves[0].total_games == 725
+
+def test_master_position_total_games():
+    stats = MasterPositionStats(
+        white_wins=1872,
+        black_wins=2288,
+        draws=2537,
+        master_moves=[],
+    )
+
+    assert stats.total_games == 6697
