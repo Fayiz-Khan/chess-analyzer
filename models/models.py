@@ -149,22 +149,92 @@ class MasterPositionStats:
         }
     
 @dataclass
+class OnlinePlayerMove:
+    san: str
+    average_rating: int
+    white_wins: int
+    black_wins: int
+    draws: int
+
+    @property
+    def total_games(self) -> int:
+        return self.white_wins + self.black_wins + self.draws
+    
+    @classmethod
+    def from_json(cls, data: dict) -> "OnlinePlayerMove":
+        return cls(
+            san = data["san"],
+            average_rating = data["averageRating"],
+            white_wins = data["white"],
+            black_wins = data["black"],
+            draws = data["draws"],
+        )
+    
+    def to_dict(self) -> dict[str,object]:
+        return{
+            "san": self.san,
+            "average_rating": self.average_rating,
+            "white_wins": self.white_wins,
+            "black_wins": self.black_wins,
+            "draws": self.draws,
+            "total_games": self.total_games,
+        }
+    
+@dataclass
+class OnlinePositionStats:
+    white_wins: int
+    black_wins: int
+    draws: int
+    online_player_moves: list[OnlinePlayerMove]
+
+    @property
+    def total_games(self) -> int:
+        return self.white_wins + self.black_wins + self.draws
+    
+    @classmethod
+    def from_json(cls, data: dict) -> "OnlinePositionStats":
+        return cls(
+            white_wins = data["white"],
+            black_wins = data["black"],
+            draws = data["draws"],
+            online_player_moves =[
+                OnlinePlayerMove.from_json(move) for move in data["moves"]
+            ],
+        )
+    
+    def to_dict(self) -> dict[str,object]:
+        return{
+            "white_wins": self.white_wins,
+            "black_wins": self.black_wins,
+            "draws": self.draws,
+            "online_player_moves": self.online_player_moves,
+            "total_games": self.total_games,
+        }
+    
+@dataclass
 class EnrichedMoveAnalysis:
     move_analysis: MoveAnalysis
     master_position_stats: MasterPositionStats
     played_master_move: MasterMove | None
+    online_position_stats: OnlinePositionStats
+    played_online_player_move: OnlinePlayerMove | None
+
 
     def to_dict(self) -> dict[str, object]:
         return{
             "engine": self.move_analysis,
             "masters": {
                 "position": self.master_position_stats,
-            "played_move": self.played_master_move,
+                "played_move": self.played_master_move,
+            },
+            "online_players": {
+                "position": self.online_position_stats,
+                "played_move": self.played_online_player_move, 
             }
         }
         
 class AnalysisEncoder(json.JSONEncoder):
     def default(self, obj: object) -> object:
-        if isinstance(obj, (MoveAnalysis, AnalysisSummary, PlayerSummary, Evaluation, EnrichedMoveAnalysis, MasterPositionStats, MasterMove)):
+        if isinstance(obj, (MoveAnalysis, AnalysisSummary, PlayerSummary, Evaluation, EnrichedMoveAnalysis, MasterPositionStats, MasterMove, OnlinePositionStats, OnlinePlayerMove)):
             return obj.to_dict()
         return super().default(obj)
