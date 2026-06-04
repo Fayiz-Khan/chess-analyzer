@@ -7,6 +7,9 @@ from models.models import (
     Evaluation, 
     MasterPositionStats, 
     MasterMove,
+    OnlinePlayerMove,
+    OnlinePositionStats,
+    EnrichedMoveAnalysis
 )
 
 def test_move_analysis_to_dict_serializes_enums_and_rounds_values():
@@ -158,3 +161,118 @@ def test_master_position_total_games():
     )
 
     assert stats.total_games == 6697
+
+def test_online_player_move_total_games():
+    move = OnlinePlayerMove(
+        san="e4",
+        average_rating=1605,
+        white_wins=10,
+        black_wins=5,
+        draws=5,
+    )
+
+    assert move.total_games == 20
+
+
+def test_online_position_stats_from_json():
+    data = {
+        "white": 20,
+        "black": 10,
+        "draws": 10,
+        "moves": [
+            {
+                "san": "e4",
+                "averageRating": 1605,
+                "white": 10,
+                "black": 5,
+                "draws": 5,
+            }
+        ],
+    }
+
+    stats = OnlinePositionStats.from_json(data)
+
+    assert stats.white_wins == 20
+    assert stats.black_wins == 10
+    assert stats.draws == 10
+
+    assert len(stats.online_player_moves) == 1
+    assert stats.online_player_moves[0].san == "e4"
+    assert stats.online_player_moves[0].average_rating == 1605
+    assert stats.online_player_moves[0].white_wins == 10
+    assert stats.online_player_moves[0].black_wins == 5
+    assert stats.online_player_moves[0].draws == 5
+    assert stats.online_player_moves[0].total_games == 20
+
+
+def test_online_position_total_games():
+    stats = OnlinePositionStats(
+        white_wins=20,
+        black_wins=10,
+        draws=10,
+        online_player_moves=[],
+    )
+
+    assert stats.total_games == 40
+
+
+def test_enriched_move_analysis_to_dict_groups_engine_masters_and_online_players():
+    move_analysis = MoveAnalysis(
+        move_number=1,
+        move_colour=MoveColour.WHITE,
+        move_san="e4",
+        best_move_san="e4",
+        fen_state_before="before",
+        fen_state_after="after",
+        eval_before=Evaluation(centipawns=0.1, mate_in=None),
+        eval_after=Evaluation(centipawns=0.2, mate_in=None),
+        delta=0.1,
+        classification=MoveClassification.GOOD,
+        is_checkmate=False,
+    )
+
+    master_move = MasterMove(
+        san="e4",
+        average_rating=2400,
+        white_wins=5,
+        black_wins=2,
+        draws=3,
+    )
+
+    master_position_stats = MasterPositionStats(
+        white_wins=10,
+        black_wins=5,
+        draws=5,
+        master_moves=[master_move],
+    )
+
+    online_move = OnlinePlayerMove(
+        san="e4",
+        average_rating=1605,
+        white_wins=10,
+        black_wins=5,
+        draws=5,
+    )
+
+    online_position_stats = OnlinePositionStats(
+        white_wins=20,
+        black_wins=10,
+        draws=10,
+        online_player_moves=[online_move],
+    )
+
+    enriched = EnrichedMoveAnalysis(
+        move_analysis=move_analysis,
+        master_position_stats=master_position_stats,
+        played_master_move=master_move,
+        online_position_stats=online_position_stats,
+        played_online_player_move=online_move,
+    )
+
+    result = enriched.to_dict()
+
+    assert result["engine"] == move_analysis
+    assert result["masters"]["position"] == master_position_stats
+    assert result["masters"]["played_move"] == master_move
+    assert result["online_players"]["position"] == online_position_stats
+    assert result["online_players"]["played_move"] == online_move
