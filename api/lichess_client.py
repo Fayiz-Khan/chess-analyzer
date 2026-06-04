@@ -11,7 +11,7 @@ headers = {
     "Authorization": f"Bearer {token}"
 }
 
-def call_masters_database(fen: str):
+def call_masters_database(fen: str) -> dict:
     response = requests.get(
         MASTERS_DATABASE_URL,
         params={"fen": fen},

@@ -94,7 +94,7 @@ class MasterMove:
     draws: int
 
     @property
-    def total_games(self):
+    def total_games(self) -> int:
         return self.white_wins + self.black_wins + self.draws
     
     @classmethod
@@ -106,6 +106,16 @@ class MasterMove:
             black_wins = data["black"],
             draws = data["draws"],
         )
+    
+    def to_dict(self) -> dict[str,object]:
+        return{
+            "san": self.san,
+            "average_rating": self.average_rating,
+            "white_wins": self.white_wins,
+            "black_wins": self.black_wins,
+            "draws": self.draws,
+            "total_games": self.total_games,
+        }
 
 @dataclass
 class MasterPositionStats: 
@@ -115,7 +125,7 @@ class MasterPositionStats:
     master_moves: list[MasterMove]
 
     @property
-    def total_games(self):
+    def total_games(self) -> int:
         return self.white_wins + self.black_wins + self.draws
     
     @classmethod
@@ -128,9 +138,33 @@ class MasterPositionStats:
                 MasterMove.from_json(move) for move in data["moves"]
             ],
         )
+    
+    def to_dict(self) -> dict[str,object]:
+        return{
+            "white_wins": self.white_wins,
+            "black_wins": self.black_wins,
+            "draws": self.draws,
+            "master_moves": self.master_moves,
+            "total_games": self.total_games,
+        }
+    
+@dataclass
+class EnrichedMoveAnalysis:
+    move_analysis: MoveAnalysis
+    master_position_stats: MasterPositionStats
+    played_master_move: MasterMove | None
+
+    def to_dict(self) -> dict[str, object]:
+        return{
+            "engine": self.move_analysis,
+            "masters": {
+                "position": self.master_position_stats,
+            "played_move": self.played_master_move,
+            }
+        }
         
 class AnalysisEncoder(json.JSONEncoder):
     def default(self, obj: object) -> object:
-        if isinstance(obj, (MoveAnalysis, AnalysisSummary, PlayerSummary, Evaluation)):
+        if isinstance(obj, (MoveAnalysis, AnalysisSummary, PlayerSummary, Evaluation, EnrichedMoveAnalysis, MasterPositionStats, MasterMove)):
             return obj.to_dict()
         return super().default(obj)
