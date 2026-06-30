@@ -4,12 +4,14 @@ from pydantic import BaseModel
 from analyzer.analyzer import analyze_game
 from analyzer.summarizer import build_summary
 from analyzer.master_enricher import enrich_move_analysis
+from analyzer.explanation_service import explain_enriched_move
 
 app = FastAPI()
 
 class AnalyzeRequest(BaseModel):
     pgn: str
     include_human_stats: bool = False
+    include_explanations: bool = False
 
 ## to test: uvicorn api.app:app --reload and then http://127.0.0.1:8000/docs
 @app.get("/")
@@ -29,6 +31,10 @@ def analyze(request: AnalyzeRequest) -> dict[str, object]:
             enrich_move_analysis(move)
             for move in analysis
         ]
+
+        if request.include_explanations:
+            for move in moves:
+                move.explanation = explain_enriched_move(move)
     else:
         moves = analysis
 
