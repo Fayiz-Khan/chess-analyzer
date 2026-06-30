@@ -231,7 +231,8 @@ class EnrichedMoveAnalysis:
             "online_players": {
                 "position": self.online_position_stats,
                 "played_move": self.played_online_player_move, 
-            }
+            },
+            "explanation": self.explanation,
         }
         
 class AnalysisEncoder(json.JSONEncoder):
