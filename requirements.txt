@@ -4,3 +4,4 @@ fastapi
 httpx2
 requests
 python-dotenv
+openai

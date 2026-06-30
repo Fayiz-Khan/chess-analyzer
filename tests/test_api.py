@@ -62,3 +62,20 @@ def test_analyze_includes_human_stats_when_requested(mock_enrich):
     assert mock_enrich.call_count == len(data["moves"])
     assert "move_analysis" in data["moves"][0]
     
+@patch("api.app.explain_enriched_move")
+@patch("api.app.enrich_move_analysis")
+def test_analyze_includes_explanations_when_requested(mock_enrich, mock_explain):
+    mock_enrich.side_effect = lambda move: move
+    mock_explain.return_value = "This move is bad because it ignores the center."
+
+    pgn_data = {
+        "pgn": "[Event \"Test\"]\n[White \"Noob\"]\n[Black \"Fayiz\"]\n[Result \"0-1\"]\n\n1. f4 e5 2. g4 Qh4# 0-1",
+        "include_human_stats": True,
+        "include_explanations": True,
+    }
+
+    response = client.post("/analyze", json=pgn_data)
+
+    assert response.status_code == 200
+    assert mock_explain.called
+    

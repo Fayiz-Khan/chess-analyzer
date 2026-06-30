@@ -218,6 +218,7 @@ class EnrichedMoveAnalysis:
     played_master_move: MasterMove | None
     online_position_stats: OnlinePositionStats
     played_online_player_move: OnlinePlayerMove | None
+    explanation: str | None = None
 
 
     def to_dict(self) -> dict[str, object]:

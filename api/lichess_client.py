@@ -7,7 +7,7 @@ load_dotenv()
 MASTERS_DATABASE_URL = "https://explorer.lichess.org/masters"
 LICHESS_PLAYERS_URL = "https://explorer.lichess.org/lichess"
 
-token = os.getenv("MY_SECRET_TOKEN")
+token = os.getenv("MY_SECRET_LICHESS_TOKEN")
 
 headers = {
     "Authorization": f"Bearer {token}"
