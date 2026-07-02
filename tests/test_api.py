@@ -40,7 +40,7 @@ def test_analyze_defaults_to_no_human_stats():
     assert "move_san" in data["moves"][0]
     assert "move_analysis" not in data["moves"][0]
 
-@patch("api.app.enrich_move_analysis")
+@patch("analyzer.analysis_service.enrich_move_analysis")
 def test_analyze_includes_human_stats_when_requested(mock_enrich):
     mock_enrich.side_effect = lambda move: {
         "move_analysis": move,
@@ -62,8 +62,8 @@ def test_analyze_includes_human_stats_when_requested(mock_enrich):
     assert mock_enrich.call_count == len(data["moves"])
     assert "move_analysis" in data["moves"][0]
     
-@patch("api.app.explain_enriched_move")
-@patch("api.app.enrich_move_analysis")
+@patch("analyzer.analysis_service.explain_enriched_move")
+@patch("analyzer.analysis_service.enrich_move_analysis")
 def test_analyze_includes_explanations_when_requested(mock_enrich, mock_explain):
     mock_enrich.side_effect = lambda move: move
     mock_explain.return_value = "This move is bad because it ignores the center."
