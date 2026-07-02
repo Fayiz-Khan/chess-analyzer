@@ -1,44 +1,89 @@
+import os
+
 from dotenv import load_dotenv
 from openai import OpenAI
+
+from config import OPENAI_MODEL
 from models.models import EnrichedMoveAnalysis
-import os
+from similarity.similarity_service import SimilarPosition
 
 load_dotenv()
 
-def build_explanation_prompt(move: EnrichedMoveAnalysis) -> str:
+
+def format_similar_positions(similar_positions: list[SimilarPosition] | None) -> str:
+    if not similar_positions:
+        return "No similar elite positions were provided."
+
+    lines = [
+        "Retrieved elite examples:",
+        "These positions were retrieved because they are structurally similar, not identical. Use them only as supporting evidence.",
+    ]
+
+    for index, similar in enumerate(similar_positions, start=1):
+        record = similar.record
+        lines.append(
+            f"""
+Example {index}
+Opening: {record.opening}
+Move played: {record.move_san}
+Typical continuation: {", ".join(record.next_moves)}
+White Elo: {record.white_elo}
+Black Elo: {record.black_elo}
+Result: {record.result}
+""".strip()
+        )
+
+    return "\n\n".join(lines)
+
+
+def build_explanation_prompt(
+    move: EnrichedMoveAnalysis,
+    similar_positions: list[SimilarPosition] | None = None,
+) -> str:
     engine = move.move_analysis
+    similar_position_text = format_similar_positions(similar_positions)
 
     return f"""
-You are a chess coach explaining one move clearly.
+You are a chess coach explaining one move clearly and accurately.
 
+Current move evidence:
 Move played: {engine.move_san}
 Best engine move: {engine.best_move_san}
-Classification: {engine.classification}
+Classification: {engine.classification.value}
 Eval before: {engine.eval_before}
 Eval after: {engine.eval_after}
 Eval loss: {engine.delta}
 
-Master database played move:
+Master database evidence:
 {move.played_master_move}
 
-Online database played move:
+Online database evidence:
 {move.played_online_player_move}
 
-Explain in 2-4 sentences:
-1. why the played move was good or bad
-2. why the engine preferred the best move
-3. use human database evidence if available
-Do not hallucinate specific plans if the data does not support it.
-"""
+Similar-position evidence:
+{similar_position_text}
+
+Write 2-4 sentences.
+
+Rules:
+1. Explain why the played move was good or bad using the engine evaluation.
+2. Explain why the engine preferred the best move.
+3. Use master, online, or similar-position evidence only when it supports the explanation.
+4. Do not claim the retrieved positions are identical to the current position.
+5. If retrieved examples conflict with the engine, prioritize the engine evaluation.
+6. Do not invent tactics, plans, or strategic ideas that are not supported by the provided evidence.
+""".strip()
 
 
-def explain_enriched_move(move: EnrichedMoveAnalysis) -> str:
+def explain_enriched_move(
+    move: EnrichedMoveAnalysis,
+    similar_positions: list[SimilarPosition] | None = None,
+) -> str:
     client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-    prompt = build_explanation_prompt(move)
 
     response = client.responses.create(
-        model="gpt-4.1-mini",
-        input=prompt,
+        model=OPENAI_MODEL,
+        input=build_explanation_prompt(move, similar_positions),
     )
 
     return response.output_text
