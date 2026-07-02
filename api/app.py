@@ -1,10 +1,7 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
 
-from analyzer.analyzer import analyze_game
-from analyzer.summarizer import build_summary
-from analyzer.master_enricher import enrich_move_analysis
-from analyzer.explanation_service import explain_enriched_move
+from analyzer.analysis_service import analyze_pgn_request
 
 app = FastAPI()
 
@@ -12,6 +9,7 @@ class AnalyzeRequest(BaseModel):
     pgn: str
     include_human_stats: bool = False
     include_explanations: bool = False
+    include_similar_positions: bool = False
 
 ## to test: uvicorn api.app:app --reload and then http://127.0.0.1:8000/docs
 @app.get("/")
@@ -20,26 +18,9 @@ def health_check():
 
 @app.post("/analyze")
 def analyze(request: AnalyzeRequest) -> dict[str, object]:
-    with open("temp.pgn", "w") as f:
-        f.write(request.pgn)
-
-    metadata, analysis = analyze_game("temp.pgn")
-    summary = build_summary(analysis)
-
-    if request.include_human_stats:
-        moves = [
-            enrich_move_analysis(move)
-            for move in analysis
-        ]
-
-        if request.include_explanations:
-            for move in moves:
-                move.explanation = explain_enriched_move(move)
-    else:
-        moves = analysis
-
-    return {
-        "game": metadata,
-        "moves": moves,
-        "summary": summary,
-    }
+    return analyze_pgn_request(
+        pgn=request.pgn,
+        include_human_stats=request.include_human_stats,
+        include_explanations=request.include_explanations,
+        include_similar_positions=request.include_similar_positions,
+    )

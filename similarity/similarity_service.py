@@ -39,7 +39,7 @@ def find_similar_positions_from_dataset(
     query_fen: str,
     dataset_path: Path,
     k: int = 5,
-    max_records: int | None = 5000,
+    max_records: int | None = None,
 ) -> list[SimilarPosition]:
     records = load_position_records(dataset_path, max_records=max_records)
     return find_similar_positions(query_fen, records, k=k)
