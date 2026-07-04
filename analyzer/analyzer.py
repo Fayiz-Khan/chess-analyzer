@@ -10,10 +10,18 @@ def classify_move(
     eval_drop: float | None,
     player_move: chess.Move,
     best_move: chess.Move | None,
+    eval_after: Evaluation,
+    move_colour: MoveColour
 ) -> MoveClassification:
     
     if best_move and player_move == best_move:
         return MoveClassification.BEST
+
+    if eval_after.mate_in is not None:
+        if move_colour == MoveColour.WHITE and eval_after.mate_in < 0:
+            return MoveClassification.BLUNDER
+        if move_colour == MoveColour.BLACK and eval_after.mate_in > 0:
+            return MoveClassification.BLUNDER
 
     if eval_drop is None:
         return MoveClassification.GOOD
@@ -85,7 +93,7 @@ def analyze_game(pgn_path: str) -> tuple[dict[str, str], list[MoveAnalysis]]:
                     else eval_after.centipawns - eval_before.centipawns
                 )
 
-            classification = classify_move(delta, move, best_move)
+            classification = classify_move(delta, move, best_move, eval_after, move_colour)
 
             move_analysis = MoveAnalysis(
                     move_number=move_number,
