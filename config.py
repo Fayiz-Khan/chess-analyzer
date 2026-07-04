@@ -12,6 +12,4 @@ ENGINE_PATH = os.getenv("ENGINE_PATH", "/opt/homebrew/bin/stockfish")
 ENGINE_DEPTH = int(os.getenv("ENGINE_DEPTH", "10"))
 
 SIMILAR_POSITION_COUNT = int(os.getenv("SIMILAR_POSITION_COUNT", "5"))
-
-_max_similarity_records = os.getenv("MAX_SIMILARITY_RECORDS")
-MAX_SIMILARITY_RECORDS = int(_max_similarity_records) if _max_similarity_records else None
+MAX_SIMILARITY_RECORDS = int(os.getenv("MAX_SIMILARITY_RECORDS", "5000"))
