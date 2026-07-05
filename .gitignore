@@ -7,5 +7,7 @@ temp.pgn
 data/*.zip
 data/*.pgn
 data/*.jsonl
+data/*.faiss
+data/*_metadata.jsonl
 data/elite/*
 !data/.gitkeep

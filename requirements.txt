@@ -1,7 +1,9 @@
 python-chess
 pytest
 fastapi
-httpx2
+httpx
 requests
 python-dotenv
 openai
+numpy
+faiss-cpu
