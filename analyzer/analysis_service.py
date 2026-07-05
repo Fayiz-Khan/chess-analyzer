@@ -1,4 +1,5 @@
 from analyzer.analyzer import analyze_game
+from analyzer.response_builder import serialize_analyze_response, serialize_enriched_move
 from analyzer.summarizer import build_summary
 from analyzer.master_enricher import enrich_move_analysis
 from analyzer.explanation_service import explain_enriched_move
@@ -10,7 +11,22 @@ from config import (
     SIMILAR_POSITION_COUNT,
     TEMP_PGN_PATH,
 )
-from similarity.similarity_service import find_similar_positions_from_dataset
+from similarity.similarity_service import SimilarPosition, find_similar_positions_from_dataset
+
+
+def load_similar_positions(query_fen: str) -> list[SimilarPosition]:
+    if not POSITION_DATASET_PATH.exists():
+        return []
+
+    return find_similar_positions_from_dataset(
+        query_fen=query_fen,
+        dataset_path=POSITION_DATASET_PATH,
+        k=SIMILAR_POSITION_COUNT,
+        max_records=MAX_SIMILARITY_RECORDS,
+        index_path=FAISS_INDEX_PATH,
+        metadata_path=FAISS_METADATA_PATH,
+    )
+
 
 def analyze_pgn_request(
     pgn: str,
@@ -24,35 +40,33 @@ def analyze_pgn_request(
     summary = build_summary(analysis)
 
     if not include_human_stats:
-        return {
-            "game": metadata,
-            "moves": analysis,
-            "summary": summary,
-        }
+        return serialize_analyze_response(metadata, analysis, summary)
 
-    moves = [enrich_move_analysis(move) for move in analysis]
+    enriched_moves = []
 
-    if include_explanations:
-        for move in moves:
-            similar_positions = []
+    for move in analysis:
+        enriched = enrich_move_analysis(move)
 
-            if include_similar_positions and POSITION_DATASET_PATH.exists():
-                similar_positions = find_similar_positions_from_dataset(
-                    query_fen=move.move_analysis.fen_state_before,
-                    dataset_path=POSITION_DATASET_PATH,
-                    k=SIMILAR_POSITION_COUNT,
-                    max_records=MAX_SIMILARITY_RECORDS,
-                    index_path=FAISS_INDEX_PATH,
-                    metadata_path=FAISS_METADATA_PATH,
-                )
+        if isinstance(enriched, dict):
+            enriched_moves.append(enriched)
+            continue
 
-            move.explanation = explain_enriched_move(
-                move,
+        similar_positions: list[SimilarPosition] = []
+
+        if include_similar_positions:
+            similar_positions = load_similar_positions(enriched.move_analysis.fen_state_before)
+
+        if include_explanations:
+            enriched.explanation = explain_enriched_move(
+                enriched,
                 similar_positions=similar_positions,
             )
 
-    return {
-        "game": metadata,
-        "moves": moves,
-        "summary": summary,
-    }
+        enriched_moves.append(
+            serialize_enriched_move(
+                enriched,
+                similar_positions=similar_positions if include_similar_positions else None,
+            )
+        )
+
+    return serialize_analyze_response(metadata, enriched_moves, summary)
