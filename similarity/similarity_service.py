@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from pathlib import Path
 
-from similarity.dataset_builder import load_position_records
+from similarity.faiss_index import PositionVectorIndex
 from similarity.feature_extractor import extract_features_from_fen
 from similarity.position_record import PositionRecord
 
@@ -35,14 +35,31 @@ def find_similar_positions(
     return sorted(scored_positions, key=lambda item: item.distance)[:k]
 
 
+def find_similar_positions_from_index(
+    query_fen: str,
+    index: PositionVectorIndex,
+    k: int = 5,
+) -> list[SimilarPosition]:
+    return [
+        SimilarPosition(record=record, distance=distance)
+        for record, distance in index.search(query_fen, k=k)
+    ]
+
+
 def find_similar_positions_from_dataset(
     query_fen: str,
     dataset_path: Path,
     k: int = 5,
     max_records: int | None = None,
+    index_path: Path | None = None,
+    metadata_path: Path | None = None,
 ) -> list[SimilarPosition]:
-    records = load_position_records(dataset_path, max_records=max_records)
-    return find_similar_positions(query_fen, records, k=k)
+    if index_path is not None and metadata_path is not None and index_path.exists() and metadata_path.exists():
+        index = PositionVectorIndex.load(index_path, metadata_path)
+        return find_similar_positions_from_index(query_fen, index, k=k)
+
+    index = PositionVectorIndex.from_dataset(dataset_path, max_records=max_records)
+    return find_similar_positions_from_index(query_fen, index, k=k)
 
 
 def euclidean_distance(vector_a: list[float], vector_b: list[float]) -> float:
