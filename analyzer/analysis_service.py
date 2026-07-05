@@ -2,15 +2,15 @@ from analyzer.analyzer import analyze_game
 from analyzer.summarizer import build_summary
 from analyzer.master_enricher import enrich_move_analysis
 from analyzer.explanation_service import explain_enriched_move
-from config import POSITION_DATASET_PATH, TEMP_PGN_PATH
-from similarity.similarity_service import find_similar_positions_from_dataset
-
 from config import (
+    FAISS_INDEX_PATH,
+    FAISS_METADATA_PATH,
     MAX_SIMILARITY_RECORDS,
     POSITION_DATASET_PATH,
     SIMILAR_POSITION_COUNT,
     TEMP_PGN_PATH,
 )
+from similarity.similarity_service import find_similar_positions_from_dataset
 
 def analyze_pgn_request(
     pgn: str,
@@ -42,6 +42,8 @@ def analyze_pgn_request(
                     dataset_path=POSITION_DATASET_PATH,
                     k=SIMILAR_POSITION_COUNT,
                     max_records=MAX_SIMILARITY_RECORDS,
+                    index_path=FAISS_INDEX_PATH,
+                    metadata_path=FAISS_METADATA_PATH,
                 )
 
             move.explanation = explain_enriched_move(
