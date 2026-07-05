@@ -1,7 +1,14 @@
 __pycache__/
+node_modules/
+frontend/dist/
 *.pyc
 .env
 *.json
+!frontend/package.json
+!frontend/tsconfig.json
+!frontend/tsconfig.app.json
+!frontend/tsconfig.node.json
+!frontend/.oxlintrc.json
 .DS_Store
 temp.pgn
 data/*.zip

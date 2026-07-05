@@ -9,9 +9,7 @@ The project builds a full analysis pipeline that:
 - Evaluates positions using Stockfish
 - Detects blunders and inaccuracies
 - Compares moves against real-game data
-- (Future) Converts handwritten scoresheets into structured PGN
-
-The goal is to combine software engineering, data processing, and machine learning to create a practical analysis tool for competitive players.
+- Retrieves similar elite positions with handcrafted vectors indexed by FAISS
 
 ---
 
@@ -21,8 +19,74 @@ The goal is to combine software engineering, data processing, and machine learni
 git clone https://github.com/your-username/chess-analyzer.git
 cd chess-analyzer
 pip install -r requirements.txt
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.zprofile
-eval "$(/opt/homebrew/bin/brew shellenv)"
 brew install stockfish
+```
+
+On Linux:
+
+```bash
+sudo apt-get update && sudo apt-get install -y stockfish
+export ENGINE_PATH=/usr/games/stockfish
+```
+
+---
+
+## Local Demo
+
+### 1. Build the position index
+
+If you already have `data/positions.jsonl`:
+
+```bash
+python3 scripts/build_faiss_index.py
+```
+
+### 2. Start the API
+
+```bash
+uvicorn api.app:app --reload
+```
+
+### 3. Start the frontend
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Open `http://127.0.0.1:5173`, paste or upload a PGN, and analyze the game.
+
+The frontend proxies `/analyze` to `http://127.0.0.1:8000`.
+
+Optional API flags:
+
+- `include_human_stats`
+- `include_similar_positions`
+- `include_explanations`
+
+---
+
+## CLI
+
+```bash
 python3 main.py
+```
+
+---
+
+## Tests
+
+Backend:
+
+```bash
+python3 -m pytest
+```
+
+Frontend:
+
+```bash
+cd frontend
+npm test
+npm run build
+```
