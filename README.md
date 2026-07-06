@@ -2,52 +2,83 @@
 
 Chess Analyzer is an end-to-end system for analyzing chess games from raw PGN to actionable insights.
 
-The project builds a full analysis pipeline that:
+The project builds a complete analysis pipeline that:
 
-- Parses and validates chess games
+- Parses and validates PGN files
 - Reconstructs board states move-by-move
 - Evaluates positions using Stockfish
-- Detects blunders and inaccuracies
-- Compares moves against real-game data
-- Retrieves similar elite positions with handcrafted vectors indexed by FAISS
+- Classifies moves as Best, Good, Inaccuracy, Mistake, or Blunder
+- Compares moves against master and online game databases
+- Retrieves similar elite positions using handcrafted feature vectors indexed with FAISS
+- Generates AI-powered move explanations using engine analysis, human game statistics, and retrieved similar positions
 
 ---
 
-## Setup
+# Setup
+
+Clone the repository and install the backend dependencies.
 
 ```bash
 git clone https://github.com/your-username/chess-analyzer.git
 cd chess-analyzer
 pip install -r requirements.txt
+```
+
+Install Stockfish.
+
+### macOS
+
+```bash
 brew install stockfish
 ```
 
-On Linux:
+### Linux
 
 ```bash
-sudo apt-get update && sudo apt-get install -y stockfish
+sudo apt-get update
+sudo apt-get install -y stockfish
+
 export ENGINE_PATH=/usr/games/stockfish
 ```
 
 ---
 
-## Local Demo
+# Local Demo
 
-### 1. Build the position index
+## 1. Build the similarity index
 
-If you already have `data/positions.jsonl`:
+If you already have `data/positions.jsonl`, build the FAISS index:
 
 ```bash
 python3 scripts/build_faiss_index.py
 ```
 
-### 2. Start the API
+This creates:
+
+- `data/positions.faiss`
+- `data/positions_metadata.jsonl`
+
+---
+
+## 2. Start the backend
 
 ```bash
 uvicorn api.app:app --reload
 ```
 
-### 3. Start the frontend
+The backend will be available at:
+
+```
+http://127.0.0.1:8000
+```
+
+Opening this URL directly will display the API health check.
+
+---
+
+## 3. Start the frontend
+
+Open a second terminal:
 
 ```bash
 cd frontend
@@ -55,11 +86,21 @@ npm install
 npm run dev
 ```
 
-Open `http://127.0.0.1:5173`, paste or upload a PGN, and analyze the game.
+Open the application at:
 
-The frontend proxies `/analyze` to `http://127.0.0.1:8000`.
+```
+http://localhost:5173
+```
 
-Optional API flags:
+Paste or upload a PGN and analyze the game.
+
+The frontend automatically proxies API requests (such as `/analyze`) to the FastAPI backend running on `http://127.0.0.1:8000`.
+
+---
+
+## Optional analysis features
+
+The API supports enabling additional analysis:
 
 - `include_human_stats`
 - `include_similar_positions`
@@ -67,7 +108,9 @@ Optional API flags:
 
 ---
 
-## CLI
+# CLI
+
+Run the analyzer from the command line:
 
 ```bash
 python3 main.py
@@ -75,15 +118,15 @@ python3 main.py
 
 ---
 
-## Tests
+# Running Tests
 
-Backend:
+## Backend
 
 ```bash
 python3 -m pytest
 ```
 
-Frontend:
+## Frontend
 
 ```bash
 cd frontend
