@@ -105,7 +105,6 @@ export function MoveTable({ moves }: MoveTableProps) {
                       {similar.next_moves.length > 0
                         ? ` · continues ${similar.next_moves.join(", ")}`
                         : ""}
-                      {` · distance ${similar.distance.toFixed(2)}`}
                     </li>
                   ))}
                 </ul>
