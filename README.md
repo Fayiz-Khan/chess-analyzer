@@ -433,8 +433,3 @@ npm run build
 - More expressive board representation for retrieval
 - Interactive chessboard visualization
 - Saved game history
-- User accounts
-- Deployment-ready Docker setup
-- Opening explorer
-- Move-specific explanation controls
-
