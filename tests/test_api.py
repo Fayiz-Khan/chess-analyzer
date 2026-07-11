@@ -43,6 +43,12 @@ def test_analyze_rejects_invalid_request():
 
     assert response.status_code == 422
 
+def test_analyze_rejects_pgn_without_moves():
+    response = client.post("/analyze", json={"pgn": "not a pgn"})
+
+    assert response.status_code == 400
+    assert response.json()["detail"] == "PGN must contain at least one move."
+
 def test_analyze_defaults_to_no_human_stats():
     pgn_data = {
         "pgn": "[Event \"Test\"]\n[White \"Noob\"]\n[Black \"Fayiz\"]\n[Result \"0-1\"]\n\n1. f4 e5 2. g4 Qh4# 0-1"

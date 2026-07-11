@@ -1,6 +1,7 @@
 python-chess
 pytest
 fastapi
+uvicorn
 httpx
 requests
 python-dotenv

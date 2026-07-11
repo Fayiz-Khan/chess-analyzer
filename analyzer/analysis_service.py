@@ -37,6 +37,10 @@ def analyze_pgn_request(
     TEMP_PGN_PATH.write_text(pgn, encoding="utf-8")
 
     metadata, analysis = analyze_game(str(TEMP_PGN_PATH))
+
+    if not analysis:
+        raise ValueError("PGN must contain at least one move.")
+
     summary = build_summary(analysis)
 
     if not include_human_stats:

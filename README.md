@@ -1,8 +1,8 @@
 # ♟️ Chess Analyzer
 
-Chess Analyzer is a full-stack AI-powered chess analysis platform that combines **Stockfish**, **large-scale human game statistics**, **FAISS vector search**, and **Retrieval-Augmented Generation (RAG)** to generate grounded natural-language explanations for chess games.
+Chess Analyzer is a full-stack AI-powered chess analysis platform that combines **Stockfish**, **human game statistics**, **FAISS vector search**, and **Retrieval-Augmented Generation (RAG)** to generate grounded natural-language explanations for chess games.
 
-Rather than simply labeling moves as mistakes or blunders, Chess Analyzer explains **why** a move was good or bad by combining engine analysis, historical human play, and similar elite positions retrieved from a local vector index.
+Rather than simply labeling moves as mistakes or blunders, Chess Analyzer explains **why** a move was good or bad by combining engine analysis, historical human play, and similar positions retrieved from a local vector index.
 
 ---
 
@@ -28,7 +28,7 @@ Chess Analyzer bridges that gap by combining multiple sources of chess knowledge
 
 - **Stockfish** for objective engine evaluation
 - **Lichess databases** for practical human move statistics
-- **FAISS retrieval** for similar elite-game positions
+- **FAISS retrieval** over a local corpus built from a downloaded Lichess Elite PGN
 - **OpenAI** for natural-language explanations
 
 This creates a system that explains chess moves using evidence instead of relying only on raw engine numbers or unguided LLM output.
@@ -39,7 +39,7 @@ This creates a system that explains chess moves using evidence instead of relyin
 
 ### Engine Analysis
 
-- Parse complete PGN files
+- Parse complete PGN games
 - Reconstruct board states move-by-move
 - Evaluate positions with Stockfish
 - Compute evaluation loss
@@ -55,16 +55,18 @@ This creates a system that explains chess moves using evidence instead of relyin
 
 ### Retrieval-Augmented Generation
 
-- Build a local corpus of elite chess positions
+- Build a local corpus of chess positions from a downloaded Lichess Elite PGN
 - Extract handcrafted feature vectors from FEN positions
 - Build a FAISS vector index
-- Retrieve top-k similar elite positions
+- Retrieve top-k similar positions
 - Use retrieved positions as context for AI explanations
 
 ### Frontend
 
 - Paste or upload PGNs
 - Toggle human stats, similar positions, and AI explanations
+- Navigate the analyzed game on an interactive chessboard
+- Click move-table rows or evaluation graph points to inspect positions
 - View move-by-move engine analysis
 - View summary statistics for each player
 - View enriched move details in a React UI
@@ -95,7 +97,7 @@ This creates a system that explains chess moves using evidence instead of relyin
 
 - Lichess Masters Explorer API
 - Lichess Online Explorer API
-- Lichess Elite Database
+- Downloaded Lichess Elite PGN corpus (local, ignored)
 - Local JSONL position corpus
 
 ### Frontend
@@ -103,6 +105,8 @@ This creates a system that explains chess moves using evidence instead of relyin
 - React
 - TypeScript
 - Vite
+- react-chessboard
+- React Testing Library
 - Vitest
 
 ---
@@ -152,12 +156,12 @@ This creates a system that explains chess moves using evidence instead of relyin
 
 ## Retrieval Pipeline
 
-Chess Analyzer uses a local retrieval system over elite chess positions.
+Chess Analyzer uses a local retrieval system over positions extracted from PGN games.
 
 ### Offline Indexing
 
 ```text
-Lichess Elite PGN
+Downloaded Lichess Elite PGN
         │
         ▼
 Position Dataset Builder
@@ -215,7 +219,7 @@ Instead of asking an LLM to explain a move from scratch, Chess Analyzer builds a
 - Move classification
 - Lichess Masters statistics
 - Lichess Online statistics
-- Similar elite positions retrieved from FAISS
+- Similar positions retrieved from FAISS
 
 ```text
 Engine Evaluation
@@ -227,7 +231,7 @@ Move Classification
 Human Database Evidence
         │
         ▼
-Similar Elite Position Retrieval
+                    Similar Position Retrieval
         │
         ▼
 Retrieved Chess Context
@@ -246,7 +250,7 @@ This helps the system produce explanations that are grounded in concrete chess e
 - Integrated Stockfish to evaluate every move in a PGN.
 - Built automatic move classification based on evaluation loss.
 - Added Lichess Masters and Online Explorer enrichment.
-- Created a local chess knowledge base from elite games.
+- Created a local chess knowledge base from a downloaded Lichess Elite PGN.
 - Engineered handcrafted feature vectors for chess positions.
 - Replaced brute-force similarity search with a persistent FAISS vector index.
 - Added a RAG-style explanation pipeline combining engine output, human statistics, and retrieved similar positions.
@@ -266,20 +270,31 @@ chess-analyzer/
 ├── scripts/               # Dataset and FAISS index builders
 ├── similarity/            # Feature extraction, FAISS index, retrieval logic
 ├── tests/                 # Backend tests
+├── docs/                  # Architecture, backend, frontend, retrieval, and RAG docs
 ├── data/                  # Local generated datasets and indexes (ignored)
 ├── config.py              # Configuration and environment defaults
 └── README.md
 ```
 
+Additional documentation:
+
+- `docs/architecture.md`
+- `docs/backend.md`
+- `docs/frontend.md`
+- `docs/retrieval.md`
+- `docs/rag.md`
+
 ---
 
 ## Setup
 
-Clone the repository and install the backend dependencies.
+Clone the repository and install the backend dependencies. Python 3.12 is recommended because CI runs on Python 3.12.
 
 ```bash
-git clone https://github.com/your-username/chess-analyzer.git
+git clone git@github.com:Fayiz-Khan/chess-analyzer.git
 cd chess-analyzer
+python3 -m venv .venv
+source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
@@ -304,28 +319,43 @@ export ENGINE_PATH=/usr/games/stockfish
 
 ## Environment Variables
 
-Create a `.env` file for optional API credentials and configuration.
+Copy `.env.example` to `.env` and adjust paths or optional API credentials for your machine.
 
-```env
-OPENAI_API_KEY=your_openai_api_key
-OPENAI_MODEL=gpt-4.1-mini
-
-MY_SECRET_LICHESS_TOKEN=your_lichess_token
-
-ENGINE_PATH=/opt/homebrew/bin/stockfish
-ENGINE_DEPTH=10
-
-SIMILAR_POSITION_COUNT=5
-MAX_SIMILARITY_RECORDS=5000
+```bash
+cp .env.example .env
 ```
+
+`ENGINE_PATH` must point to your Stockfish binary. `OPENAI_API_KEY` is only required when AI explanations are enabled. `MY_SECRET_LICHESS_TOKEN` is optional for Lichess Explorer requests.
+
+### API keys and tokens
+
+Core engine analysis only requires Stockfish. These credentials unlock optional enrichment features:
+
+- **OpenAI API key**: create a key from the OpenAI platform API keys page: `https://platform.openai.com/api-keys`. Put it in `.env` as `OPENAI_API_KEY`. This is only needed when `include_explanations` is enabled.
+- **Lichess token**: create one from your Lichess account preferences under API access tokens: `https://lichess.org/account/oauth/token`. Put it in `.env` as `MY_SECRET_LICHESS_TOKEN`. The app uses Explorer endpoints, so a token is optional; if you create one, avoid account-control scopes that this app does not need.
 
 ---
 
 ## Local Demo
 
-### 1. Build the similarity index
+### 1. Optional: Build the similarity index
 
-If you already have `data/positions.jsonl`, build the FAISS index:
+Similar-position retrieval is optional. If `data/positions.jsonl` is missing, the app still runs and returns an empty similar-position list.
+
+This project uses a locally downloaded Lichess Elite PGN as the retrieval source. The Lichess Elite Database is available at `https://database.nikonoel.fr/`; it provides monthly downloadable PGN archives built from filtered lichess.org games. The raw PGN and generated index files are ignored because they are large, so they are not included in the repository.
+
+To rebuild the retrieval index from scratch:
+
+1. Download a monthly PGN archive from `https://database.nikonoel.fr/`, or provide another compatible PGN file.
+2. Extract the downloaded archive.
+3. Place or rename the extracted PGN at `data/elite/lichess_elite_2021-12.pgn`, or update the command below to use your local filename.
+4. Build the JSONL position dataset:
+
+```bash
+python3 scripts/build_position_dataset.py data/elite/lichess_elite_2021-12.pgn --output data/positions.jsonl
+```
+
+5. Build the FAISS index:
 
 ```bash
 python3 scripts/build_faiss_index.py
@@ -362,7 +392,7 @@ Open a second terminal:
 
 ```bash
 cd frontend
-npm install
+npm ci
 npm run dev
 ```
 
@@ -421,6 +451,7 @@ python3 -m pytest
 
 ```bash
 cd frontend
+npm ci
 npm test
 npm run build
 ```
@@ -431,5 +462,5 @@ npm run build
 
 - Learned neural chess embeddings
 - More expressive board representation for retrieval
-- Interactive chessboard visualization
 - Saved game history
+- Move annotations directly on the chessboard

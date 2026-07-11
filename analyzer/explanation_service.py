@@ -12,10 +12,10 @@ load_dotenv()
 
 def format_similar_positions(similar_positions: list[SimilarPosition] | None) -> str:
     if not similar_positions:
-        return "No similar elite positions were provided."
+        return "No similar positions were provided."
 
     lines = [
-        "Retrieved elite examples:",
+        "Retrieved similar examples:",
         "These positions were retrieved because they are structurally similar, not identical. Use them only as supporting evidence.",
     ]
 

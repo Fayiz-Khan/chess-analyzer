@@ -17,7 +17,7 @@ For each move, the system can provide:
 - Move classification
 - Lichess Masters statistics
 - Lichess Online statistics
-- Similar elite positions from FAISS retrieval
+- Similar positions from FAISS retrieval
 
 ---
 
@@ -58,7 +58,7 @@ the system asks:
 Explain this chess move using:
 - Stockfish evaluation
 - Human move statistics
-- Similar elite positions
+- Similar positions
 ```
 
 This makes explanations more grounded and reduces the chance of unsupported reasoning.

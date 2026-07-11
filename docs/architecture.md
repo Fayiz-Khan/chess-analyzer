@@ -2,7 +2,7 @@
 
 Chess Analyzer is built as a layered full-stack system.
 
-The backend separates HTTP routing, analysis orchestration, engine evaluation, data enrichment, retrieval, and response serialization. This keeps the API thin and makes each layer independently testable.
+The project separates frontend interaction, HTTP routing, analysis orchestration, engine evaluation, data enrichment, retrieval, explanation generation, and response serialization. This keeps the API thin, makes each layer independently testable, and lets optional features be enabled without changing the core engine-analysis path.
 
 ---
 
@@ -27,7 +27,84 @@ Analysis Service
    ├── Similar Position Retrieval
    ├── AI Explanation Generation
    └── Response Serialization
+   │
+   ▼
+AnalyzeResponse JSON
+   │
+   ▼
+React Results UI
+   ├── Chessboard position
+   ├── Move table
+   ├── Evaluation graph
+   ├── Summary cards
+   └── Optional enrichment panels
 ```
+
+---
+
+## Request Flow
+
+```text
+User action
+   │
+   ▼
+PgnInput
+   │
+   ▼
+frontend/src/api.ts
+   │  POST /analyze
+   ▼
+api/app.py
+   │
+   ▼
+analyzer/analysis_service.py
+   │
+   ├── analyzer/analyzer.py
+   │      ├── python-chess PGN replay
+   │      └── Stockfish evaluation
+   │
+   ├── analyzer/summarizer.py
+   │
+   ├── analyzer/master_enricher.py
+   │      └── api/lichess_client.py
+   │
+   ├── similarity/similarity_service.py
+   │      ├── feature_extractor.py
+   │      └── faiss_index.py
+   │
+   ├── analyzer/explanation_service.py
+   │      └── OpenAI Responses API
+   │
+   └── analyzer/response_builder.py
+          │
+          ▼
+React UI state
+   ├── selectedMoveIndex
+   ├── board FEN
+   ├── move details
+   └── summaries/enrichment
+```
+
+---
+
+## Optional Feature Modes
+
+Core analysis always parses PGN, evaluates positions with Stockfish, classifies moves, and returns summaries.
+
+Optional flags add progressively richer evidence:
+
+```text
+include_human_stats
+   └── Lichess Masters and Online Explorer data
+
+include_similar_positions
+   └── Local JSONL dataset + FAISS index lookup
+
+include_explanations
+   └── OpenAI explanation using engine, human, and retrieved context
+```
+
+If the local similar-position dataset is missing, the app still runs and returns no similar positions for that move.
 
 ---
 
@@ -70,6 +147,22 @@ The explanation layer builds a grounded prompt and calls the OpenAI Responses AP
 ### Response Builder
 
 The response builder converts Python domain objects into frontend-friendly JSON.
+
+### Frontend Layer
+
+The React frontend owns UI state, request options, selected move navigation, and presentation.
+
+It renders board positions from `fen_state_after`, lets users navigate moves through controls, table rows, or graph points, and displays optional enrichment only when the backend response includes it.
+
+---
+
+## Verification
+
+The project includes both backend and frontend verification:
+
+- Backend pytest coverage for engine analysis, API behavior, models, response serialization, summarization, Lichess clients, retrieval, and FAISS index behavior.
+- Frontend Vitest coverage for type helpers and board-navigation interaction.
+- CI installs Stockfish, runs backend tests, installs frontend dependencies with `npm ci`, runs frontend tests, and builds the Vite app.
 
 ---
 
