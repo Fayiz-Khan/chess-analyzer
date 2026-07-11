@@ -33,3 +33,16 @@ def test_call_masters_database_passes_fen_as_query_param(mock_get):
     _, kwargs = mock_get.call_args
 
     assert kwargs["params"] == {"fen": fen}
+
+@patch("api.lichess_client.requests.get")
+@patch("api.lichess_client.headers", {})
+def test_call_masters_database_omits_authorization_header_without_token(mock_get):
+    fake_response = Mock()
+    fake_response.json.return_value = {"moves": []}
+    mock_get.return_value = fake_response
+
+    call_masters_database("some random mocked fen")
+
+    _, kwargs = mock_get.call_args
+
+    assert kwargs["headers"] == {}

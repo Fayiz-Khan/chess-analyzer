@@ -8,10 +8,7 @@ MASTERS_DATABASE_URL = "https://explorer.lichess.org/masters"
 LICHESS_PLAYERS_URL = "https://explorer.lichess.org/lichess"
 
 token = os.getenv("MY_SECRET_LICHESS_TOKEN")
-
-headers = {
-    "Authorization": f"Bearer {token}"
-}
+headers = {"Authorization": f"Bearer {token}"} if token else {}
 
 def call_masters_database(fen: str) -> dict:
     response = requests.get(

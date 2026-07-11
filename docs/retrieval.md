@@ -4,7 +4,7 @@ The retrieval system powers the similar-position evidence used in the RAG explan
 
 It uses:
 
-- A local corpus of elite chess positions
+- A local generated corpus of chess positions built from a downloaded Lichess Elite PGN
 - Handcrafted chess feature vectors
 - FAISS vector search
 - Metadata lookup for retrieved positions
@@ -13,7 +13,14 @@ It uses:
 
 ## Position Dataset
 
-The dataset builder turns elite PGNs into `PositionRecord` objects.
+The dataset builder turns PGN games into `PositionRecord` objects. In this project, the intended source is a locally downloaded Lichess Elite PGN such as `data/elite/lichess_elite_2021-12.pgn`.
+
+The Lichess Elite Database is available at `https://database.nikonoel.fr/`. It provides monthly downloadable PGN archives built from filtered lichess.org games. The raw PGN is not committed because it is large. Rebuilding the retrieval corpus requires downloading and extracting one of those archives, placing the PGN under `data/elite/`, or passing another PGN path to the dataset builder:
+
+```bash
+python3 scripts/build_position_dataset.py data/elite/lichess_elite_2021-12.pgn --output data/positions.jsonl
+python3 scripts/build_faiss_index.py
+```
 
 Each record stores:
 

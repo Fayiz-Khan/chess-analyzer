@@ -4,58 +4,37 @@ interface SummaryPanelProps {
   summary: AnalysisSummary;
 }
 
-function PlayerCard({
-  label,
-  stats,
-}: {
-  label: string;
-  stats: AnalysisSummary["white"];
-}) {
+function StatLine({ label, value, tone }: { label: string; value: number | string; tone?: string }) {
+  return (
+    <div className={`stat-line ${tone ?? ""}`}>
+      <span>{label}</span>
+      <strong>{value}</strong>
+    </div>
+  );
+}
+
+function PlayerCard({ label, stats }: { label: string; stats: AnalysisSummary["white"] }) {
   return (
     <article className="summary-card">
-      <h3>{label}</h3>
-      <dl>
-        <div>
-          <dt>Moves</dt>
-          <dd>{stats.total_moves}</dd>
-        </div>
-        <div>
-          <dt>Best</dt>
-          <dd>{stats.best_moves}</dd>
-        </div>
-        <div>
-          <dt>Good</dt>
-          <dd>{stats.good_moves}</dd>
-        </div>
-        <div>
-          <dt>Inaccuracies</dt>
-          <dd>{stats.inaccuracies}</dd>
-        </div>
-        <div>
-          <dt>Mistakes</dt>
-          <dd>{stats.mistakes}</dd>
-        </div>
-        <div>
-          <dt>Blunders</dt>
-          <dd>{stats.blunders}</dd>
-        </div>
-        <div>
-          <dt>Avg eval loss</dt>
-          <dd>{stats.average_eval_loss.toFixed(2)}</dd>
-        </div>
-      </dl>
+      <p className="section-label">{label}</p>
+      <StatLine label="✓ best" value={stats.best_moves} tone="green" />
+      <StatLine label="! good" value={stats.good_moves} />
+      <StatLine label="?! inaccuracy" value={stats.inaccuracies} tone="gold" />
+      <StatLine label="? mistake" value={stats.mistakes} tone="orange" />
+      <StatLine label="?? blunder" value={stats.blunders} tone="red" />
+      <div className="summary-footer">
+        <span>Avg CPL</span>
+        <strong>{stats.average_eval_loss.toFixed(2)}</strong>
+      </div>
     </article>
   );
 }
 
 export function SummaryPanel({ summary }: SummaryPanelProps) {
   return (
-    <section className="panel summary-panel">
-      <h2>Summary</h2>
-      <div className="summary-grid">
-        <PlayerCard label="White" stats={summary.white} />
-        <PlayerCard label="Black" stats={summary.black} />
-      </div>
+    <section className="summary-panel">
+      <PlayerCard label="White" stats={summary.white} />
+      <PlayerCard label="Black" stats={summary.black} />
     </section>
   );
 }

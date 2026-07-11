@@ -32,11 +32,11 @@ for move in analysis:
         print(f"Best move: {move.best_move_san}")
 
     print(
-    f"Eval: "
-    f"{format_evaluation(move.eval_before)} "
-    f"→ "
-    f"{format_evaluation(move.eval_after)}"
-)
+        f"Eval: "
+        f"{format_evaluation(move.eval_before)} "
+        f"→ "
+        f"{format_evaluation(move.eval_after)}"
+    )
     if move.delta is not None:
         print(f"Δ {move.delta:.2f}")
     else:

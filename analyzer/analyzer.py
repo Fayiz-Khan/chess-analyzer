@@ -2,7 +2,6 @@ import chess
 import chess.pgn
 
 from analyzer.engine import call_engine, start_engine
-from analyzer.master_enricher import enrich_move_analysis
 from models.models import MoveAnalysis, MoveClassification, MoveColour, Evaluation
 
 
@@ -109,7 +108,6 @@ def analyze_game(pgn_path: str) -> tuple[dict[str, str], list[MoveAnalysis]]:
                     is_checkmate=is_checkmate,
                 )
 
-            # enrich_move_analysis(move_analysis) commenting out for now, TBD if we want to do it this way
             analysis.append(move_analysis)
 
             if is_checkmate:

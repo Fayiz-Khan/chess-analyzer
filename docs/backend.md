@@ -68,3 +68,5 @@ The response contains:
 - Optional human stats
 - Optional similar positions
 - Optional AI explanations
+
+The frontend consumes this response directly through `frontend/src/api.ts`. Plain move responses contain engine fields at the top level; enriched responses wrap the engine move under `engine` and add `masters`, `online_players`, optional `similar_positions`, and optional `explanation`.

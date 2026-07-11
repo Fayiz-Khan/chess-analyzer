@@ -3,12 +3,15 @@ node_modules/
 frontend/dist/
 *.pyc
 .env
-*.json
+!.env.example
+analysis.json
 !frontend/package.json
+!frontend/package-lock.json
 !frontend/tsconfig.json
 !frontend/tsconfig.app.json
 !frontend/tsconfig.node.json
 !frontend/.oxlintrc.json
+*.tsbuildinfo
 .DS_Store
 temp.pgn
 data/*.zip
@@ -18,3 +21,4 @@ data/*.faiss
 data/*_metadata.jsonl
 data/elite/*
 !data/.gitkeep
+!data/elite/.gitkeep

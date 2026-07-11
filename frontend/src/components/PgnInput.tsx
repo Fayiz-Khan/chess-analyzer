@@ -25,23 +25,22 @@ export function PgnInput({
 }: PgnInputProps) {
   function handleFileUpload(event: React.ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
-    if (!file) {
-      return;
-    }
+    if (!file) return;
 
     const reader = new FileReader();
     reader.onload = () => {
-      if (typeof reader.result === "string") {
-        onPgnChange(reader.result);
-      }
+      if (typeof reader.result === "string") onPgnChange(reader.result);
     };
     reader.readAsText(file);
   }
 
   return (
     <section className="panel input-panel">
-      <div className="panel-header">
-        <h2>PGN Input</h2>
+      <div className="panel-heading-row">
+        <div>
+          <p className="section-label">PGN input</p>
+          <h2>Paste a game or upload notation</h2>
+        </div>
         <label className="file-upload">
           Upload PGN
           <input type="file" accept=".pgn,text/plain" onChange={handleFileUpload} />
@@ -51,46 +50,44 @@ export function PgnInput({
       <textarea
         value={pgn}
         onChange={(event) => onPgnChange(event.target.value)}
-        rows={12}
+        rows={9}
         spellCheck={false}
       />
 
-      <div className="option-row">
-        <label>
-          <input
-            type="checkbox"
-            checked={includeHumanStats}
-            onChange={(event) => onIncludeHumanStatsChange(event.target.checked)}
-          />
-          Human stats
-        </label>
-        <label>
-          <input
-            type="checkbox"
-            checked={includeSimilarPositions}
-            disabled={!includeHumanStats}
-            onChange={(event) =>
-              onIncludeSimilarPositionsChange(event.target.checked)
-            }
-          />
-          Similar positions
-        </label>
-        <label>
-          <input
-            type="checkbox"
-            checked={includeExplanations}
-            disabled={!includeHumanStats}
-            onChange={(event) =>
-              onIncludeExplanationsChange(event.target.checked)
-            }
-          />
-          AI explanations
-        </label>
-      </div>
+      <div className="input-actions">
+        <button type="button" className="primary-button" onClick={onAnalyze} disabled={loading || !pgn.trim()}>
+          {loading ? "Analyzing…" : "Analyze game →"}
+        </button>
 
-      <button type="button" onClick={onAnalyze} disabled={loading || !pgn.trim()}>
-        {loading ? "Analyzing..." : "Analyze Game"}
-      </button>
+        <div className="option-row">
+          <label>
+            <input
+              type="checkbox"
+              checked={includeHumanStats}
+              onChange={(event) => onIncludeHumanStatsChange(event.target.checked)}
+            />
+            Human stats
+          </label>
+          <label>
+            <input
+              type="checkbox"
+              checked={includeSimilarPositions}
+              disabled={!includeHumanStats}
+              onChange={(event) => onIncludeSimilarPositionsChange(event.target.checked)}
+            />
+            Similar positions
+          </label>
+          <label>
+            <input
+              type="checkbox"
+              checked={includeExplanations}
+              disabled={!includeHumanStats}
+              onChange={(event) => onIncludeExplanationsChange(event.target.checked)}
+            />
+            AI explanations
+          </label>
+        </div>
+      </div>
     </section>
   );
 }
