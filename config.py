@@ -9,6 +9,7 @@ FAISS_INDEX_PATH = PROJECT_ROOT / "data" / "positions.faiss"
 FAISS_METADATA_PATH = PROJECT_ROOT / "data" / "positions_metadata.jsonl"
 
 OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4.1-mini")
+LICHESS_TOKEN = os.getenv("MY_SECRET_LICHESS_TOKEN")
 
 ENGINE_PATH = os.getenv("ENGINE_PATH", "/opt/homebrew/bin/stockfish")
 ENGINE_DEPTH = int(os.getenv("ENGINE_DEPTH", "10"))
