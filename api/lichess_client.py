@@ -1,14 +1,11 @@
 import requests
 import os
-from dotenv import load_dotenv
-
-load_dotenv()
+from config import LICHESS_TOKEN
 
 MASTERS_DATABASE_URL = "https://explorer.lichess.org/masters"
 LICHESS_PLAYERS_URL = "https://explorer.lichess.org/lichess"
 
-token = os.getenv("MY_SECRET_LICHESS_TOKEN")
-headers = {"Authorization": f"Bearer {token}"} if token else {}
+headers = {"Authorization": f"Bearer {LICHESS_TOKEN}"} if LICHESS_TOKEN else {}
 
 def call_masters_database(fen: str) -> dict:
     response = requests.get(
