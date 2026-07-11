@@ -4,7 +4,11 @@ Chess Analyzer is a full-stack AI-powered chess analysis platform that combines 
 
 Rather than simply labeling moves as mistakes or blunders, Chess Analyzer explains **why** a move was good or bad by combining engine analysis, historical human play, and similar positions retrieved from a local vector index.
 
-<img width="2940" height="1600" alt="image" src="https://github.com/user-attachments/assets/c01776cf-e306-4ded-884c-356d47c8eb67" />
+<img
+  width="1200"
+  alt="Chess Analyzer dashboard showing PGN input, board navigation, evaluation graph, and move analysis panels"
+  src="docs/assets/dashboard.png"
+/>
 
 
 ---
