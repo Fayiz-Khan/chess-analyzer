@@ -14,6 +14,39 @@ from config import (
 from similarity.similarity_service import SimilarPosition, find_similar_positions_from_dataset
 
 
+def normalize_pgn_text(pgn: str) -> str:
+    lines = pgn.replace("\r\n", "\n").replace("\r", "\n").split("\n")
+    normalized: list[str] = []
+    in_header_block = True
+    saw_header = False
+    saw_blank_after_header = False
+
+    for line in lines:
+        stripped = line.strip()
+
+        if in_header_block:
+            if stripped.startswith("["):
+                normalized.append(line)
+                saw_header = True
+                saw_blank_after_header = False
+                continue
+
+            if saw_header and not stripped:
+                saw_blank_after_header = True
+                continue
+
+            if saw_blank_after_header:
+                normalized.append("")
+
+            normalized.append(line)
+            in_header_block = False
+            continue
+
+        normalized.append(line)
+
+    return "\n".join(normalized)
+
+
 def load_similar_positions(query_fen: str) -> list[SimilarPosition]:
     if not POSITION_DATASET_PATH.exists():
         return []
@@ -34,7 +67,7 @@ def analyze_pgn_request(
     include_explanations: bool = False,
     include_similar_positions: bool = False,
 ) -> dict[str, object]:
-    TEMP_PGN_PATH.write_text(pgn, encoding="utf-8")
+    TEMP_PGN_PATH.write_text(normalize_pgn_text(pgn), encoding="utf-8")
 
     metadata, analysis = analyze_game(str(TEMP_PGN_PATH))
 
