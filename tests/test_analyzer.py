@@ -1,9 +1,16 @@
 import chess
 
-from analyzer.analyzer import classify_move
+from analyzer.analyzer import analyze_pgn_text, classify_move
 from models.models import MoveClassification, Evaluation, MoveColour
 
 NORMAL_EVAL = Evaluation(centipawns=0.0, mate_in=None)
+
+
+def test_analyze_pgn_text_accepts_empty_text_without_crashing():
+    metadata, analysis = analyze_pgn_text("")
+
+    assert metadata == {}
+    assert analysis == []
 
 def test_classify_move_returns_best_when_player_move_matches_best_move():
     move = chess.Move.from_uci("e2e4")

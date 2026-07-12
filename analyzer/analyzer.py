@@ -1,3 +1,5 @@
+import io
+
 import chess
 import chess.pgn
 
@@ -50,11 +52,22 @@ def score_to_evaluation(score: chess.engine.PovScore) -> Evaluation:
         mate_in=None,
     )
 
+def analyze_pgn_text(pgn_text: str) -> tuple[dict[str, str], list[MoveAnalysis]]:
+    return analyze_game_stream(io.StringIO(pgn_text))
+
+
 def analyze_game(pgn_path: str) -> tuple[dict[str, str], list[MoveAnalysis]]:
+    with open(pgn_path, encoding="utf-8") as pgn:
+        return analyze_game_stream(pgn)
+
+
+def analyze_game_stream(pgn: io.TextIOBase) -> tuple[dict[str, str], list[MoveAnalysis]]:
     analysis = []
 
-    with open(pgn_path) as pgn:
-        game = chess.pgn.read_game(pgn)
+    game = chess.pgn.read_game(pgn)
+
+    if game is None:
+        return {}, []
 
     metadata = dict(game.headers)
 
