@@ -3,7 +3,6 @@ import os
 
 PROJECT_ROOT = Path(__file__).resolve().parent
 
-TEMP_PGN_PATH = PROJECT_ROOT / "temp.pgn"
 POSITION_DATASET_PATH = PROJECT_ROOT / "data" / "positions.jsonl"
 FAISS_INDEX_PATH = PROJECT_ROOT / "data" / "positions.faiss"
 FAISS_METADATA_PATH = PROJECT_ROOT / "data" / "positions_metadata.jsonl"
