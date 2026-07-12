@@ -470,4 +470,3 @@ npm run build
 - Learned neural chess embeddings
 - More expressive board representation for retrieval
 - Saved game history
-- Move annotations directly on the chessboard
