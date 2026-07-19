@@ -47,8 +47,11 @@ def build_explanation_prompt(
 You are a chess coach explaining one move clearly and accurately.
 
 Current move evidence:
+Move number: {engine.move_number}
+Side to move: {engine.move_colour.value}
 Move played: {engine.move_san}
-Best engine move: {engine.best_move_san}
+Best engine move for {engine.move_colour.value}: {engine.best_move_san}
+Position before the move: {engine.fen_state_before}
 Classification: {engine.classification.value}
 Eval before: {engine.eval_before}
 Eval after: {engine.eval_after}
@@ -67,11 +70,12 @@ Write 2-4 sentences.
 
 Rules:
 1. Explain why the played move was good or bad using the engine evaluation.
-2. Explain why the engine preferred the best move.
+2. Explain why the engine preferred the best move for {engine.move_colour.value}.
 3. Use master, online, or similar-position evidence only when it supports the explanation.
 4. Do not claim the retrieved positions are identical to the current position.
 5. If retrieved examples conflict with the engine, prioritize the engine evaluation.
 6. Do not invent tactics, plans, or strategic ideas that are not supported by the provided evidence.
+7. Treat the best engine move as a legal move for the same side that played the current move. Do not describe it as the opponent's move or as a move that challenges that same side's own center.
 """.strip()
 
 
